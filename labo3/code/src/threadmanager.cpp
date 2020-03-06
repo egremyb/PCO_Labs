@@ -33,6 +33,19 @@ void ThreadManager::incrementPercentComputed(double percentComputed)
     emit sig_incrementPercentComputed(percentComputed);
 }
 
+
+void ThreadManager::findEqualDistribution(int hashToCompute, int nbThreads, int *distribution){
+    int baseDistribution = hashToCompute / nbThreads;
+    int extraHashToCompute = hashToCompute % nbThreads;
+
+    for(int i = 0; i < nbThreads; i++){
+        distribution[i] = baseDistribution;
+        if(i < extraHashToCompute){
+            distribution[i]++;
+        }
+    }
+}
+
 /*
  * Les paramètres sont les suivants:
  *
@@ -129,7 +142,7 @@ QString ThreadManager::startHacking(
         }
 
         /*
-         * On récupère le mot de pass à tester suivant.
+         * On récupère le mot de passe à tester suivant.
          *
          * L'opération se résume à incrémenter currentPasswordArray comme si
          * chaque élément de ce vecteur représentait un digit d'un nombre en
