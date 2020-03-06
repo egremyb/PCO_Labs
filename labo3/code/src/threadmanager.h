@@ -26,6 +26,9 @@ class ThreadManager: public QObject
     Q_OBJECT
 private:
 
+    QVector<unsigned int> findEqualDistribution(const int hashToCompute, const int nbThreads);
+    QVector<QVector<unsigned int>> findStartingPasswordStates(const QVector<unsigned int> distribution, const int passwordSize, const QString charset);
+
 public:
     /**
      * \brief ThreadManager Constructeur simple

@@ -34,7 +34,8 @@ void ThreadManager::incrementPercentComputed(double percentComputed)
 }
 
 
-void ThreadManager::findEqualDistribution(int hashToCompute, int nbThreads, int *distribution){
+QVector<unsigned int> ThreadManager::findEqualDistribution(const int hashToCompute, const int nbThreads){
+    QVector<unsigned int> distribution(nbThreads);
     int baseDistribution = hashToCompute / nbThreads;
     int extraHashToCompute = hashToCompute % nbThreads;
 
@@ -44,6 +45,35 @@ void ThreadManager::findEqualDistribution(int hashToCompute, int nbThreads, int 
             distribution[i]++;
         }
     }
+    return distribution;
+}
+
+QVector<QVector<unsigned int>> ThreadManager::findStartingPasswordStates(const QVector<unsigned int> distribution, const int passwordSize, const QString charset){
+    QVector<QVector<unsigned int>> passwordsArrays(distribution.size(), QVector<unsigned int>(passwordSize));
+    QVector<unsigned int> currentPasswordArray(passwordSize);
+    unsigned int sum = 0;
+    unsigned int base = charset.size();
+
+    currentPasswordArray.fill(0, passwordSize);
+    passwordsArrays[0] = currentPasswordArray;
+
+    for(int i = 0; i < distribution.size() - 1; i++){
+        sum += distribution[i];
+
+        unsigned int starterHashId = sum + 1;
+
+        while(starterHashId > base){
+            unsigned int remainder = starterHashId % base;
+            // Writting less significant int in low index i
+            currentPasswordArray[i] = remainder;
+            starterHashId = starterHashId / base;
+        }
+
+        // Add the current password array to the result vector
+        passwordsArrays[i + 1] = currentPasswordArray;
+    }
+
+    return passwordsArrays;
 }
 
 /*
