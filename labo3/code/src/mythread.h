@@ -7,12 +7,12 @@
 
 class MyThread{
 private :
-    static QString _charset;
-    static QString _salt;
-    static QString _hash;
-    static unsigned int _nbChars;
-    static unsigned int _isFound;
-    static QString _solution;
+    QString _charset;
+    QString _salt;
+    QString _hash;
+    unsigned int _nbChars;
+    unsigned int _isFound;
+    QString _solution;
 
     QString getCharset();
     QString getSalt();

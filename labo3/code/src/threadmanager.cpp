@@ -1,5 +1,6 @@
 #include <QCryptographicHash>
 #include <QVector>
+#include <QList>
 
 #include "threadmanager.h"
 #include "mythread.h"
@@ -110,7 +111,9 @@ QString ThreadManager::startHacking(
     QVector<unsigned int> distribution;
     QVector<QVector<unsigned int>> startingPasswordsStates;
 
-    MyThread bruteForceEnv(charset, salt, hash,nbChars);
+    MyThread bruteForceEnv(charset, salt, hash, nbChars);
+
+    QList<std::unique_ptr<PcoThread>> threadList;
 
     nbToCompute        = intPow(charset.length(), nbChars);
 
@@ -118,7 +121,8 @@ QString ThreadManager::startHacking(
     startingPasswordsStates = findStartingPasswordStates(distribution, nbChars, charset);
 
     for(int i = 0; i < nbThreads; i++){
-
+        PcoThread *currentThread = new PcoThread(bruteForceEnv.startBruteForce);
+        threadList.push_back(std::unique_ptr<PcoThread>(currentThread));
     }
 
     return QString("");
