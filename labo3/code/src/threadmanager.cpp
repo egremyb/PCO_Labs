@@ -113,17 +113,25 @@ QString ThreadManager::startHacking(
 
     MyThread bruteForceEnv(charset, salt, hash, nbChars);
 
-    QList<std::unique_ptr<PcoThread>> threadList;
+    QList<PcoThread*> threadList;
 
-    nbToCompute        = intPow(charset.length(), nbChars);
+    nbToCompute = intPow(charset.length(), nbChars);
 
     distribution = findEqualDistribution(nbToCompute, nbThreads);
     startingPasswordsStates = findStartingPasswordStates(distribution, nbChars, charset);
 
-    for(int i = 0; i < nbThreads; i++){
-        PcoThread *currentThread = new PcoThread(bruteForceEnv.startBruteForce);
-        threadList.push_back(std::unique_ptr<PcoThread>(currentThread));
+    // QVector<unsigned int> currentPasswordArray, unsigned int nbToCompute, void (*updateLoadingBar) (double)
+
+    for(int i = 0; i < (int)nbThreads; i++){
+        PcoThread *currentThread = new PcoThread(bruteForceEnv.startBruteForce, startingPasswordsStates.at(i), distribution.at(i), this);
+        threadList.push_back(currentThread);
     }
 
-    return QString("");
+    for (int i = 0; i < threadList.size(); i++){
+        threadList[i]->join();
+    }
+
+    threadList.clear();
+
+    return bruteForceEnv.getSolution();
 }

@@ -4,30 +4,26 @@
 #include <QString>
 #include <QVector>
 #include <pcosynchro/pcomutex.h>
+#include "threadmanager.h"
 
 class MyThread{
 private :
-    QString _charset;
-    QString _salt;
-    QString _hash;
-    unsigned int _nbChars;
-    unsigned int _isFound;
-    QString _solution;
+    static QString _charset;
+    static QString _salt;
+    static QString _hash;
+    static unsigned int _nbChars;
+    static unsigned int _isFound;
+    static QString _solution;
 
-    QString getCharset();
-    QString getSalt();
-    QString getHash();
-    unsigned int getNbChars();
-    unsigned int getIsFound();
-    void setIsFound(unsigned int isFound);
-    void setSolution(QString solution);
+    static void setIsFound(unsigned int isFound);
+    static void setSolution(QString solution);
 
-    void indexToChar(QString* passwordString, QVector<unsigned int>* passwordArray);
+    static void indexToChar(QString* passwordString, QVector<unsigned int>* passwordArray);
 
 public:
     MyThread(QString charset, QString salt, QString hash, unsigned int nbChars);
     QString getSolution();
-    void startBruteForce(QVector<unsigned int> startingPasswordState, unsigned int nbToCompute, void (*updateLoadingBar) (double));
+    static void startBruteForce(QVector<unsigned int> startingPasswordState, unsigned int nbToCompute, ThreadManager tm);
 };
 
 

@@ -5,45 +5,25 @@
 using namespace std;
 
 MyThread::MyThread(QString charset, QString salt, QString hash, unsigned int nbChars){
-    this->_charset  = charset;
-    this->_salt     = salt;
-    this->_hash     = hash;
-    this->_nbChars  = nbChars;
-    this->_isFound  = false;
-    this->_solution = "";
+    MyThread::_charset  = charset;
+    _salt     = salt;
+    _hash     = hash;
+    _nbChars  = nbChars;
+    _isFound  = false;
+    _solution = "";
 };
-
-QString MyThread::getCharset(){
-    return this->_charset;
-}
-
-QString MyThread::getSalt(){
-    return this->_salt;
-}
-
-QString MyThread::getHash(){
-    return this->_hash;
-}
-
-unsigned int MyThread::getNbChars(){
-    return this->_nbChars;
-}
-
-unsigned int MyThread::getIsFound(){
-    return this->_isFound;
-}
 
 void MyThread::setIsFound(unsigned int isFound){
     PcoMutex mutex;
     mutex.lock();
-    this->_isFound = isFound;
+    _isFound = isFound;
     mutex.unlock();
 }
 
 void MyThread::setSolution(QString solution){
     PcoMutex mutex;
     mutex.lock();
-    this->_solution= solution;
+    _solution = solution;
     mutex.unlock();
 }
 
@@ -52,16 +32,16 @@ QString MyThread::getSolution(){
 }
 
 void MyThread::indexToChar(QString* passwordString, QVector<unsigned int>* passwordArray){
-    if((unsigned int)passwordArray->size() != getNbChars() || (unsigned int)passwordString->size() != getNbChars()){
+    if((unsigned int)passwordArray->size() != _nbChars || (unsigned int)passwordString->size() != _nbChars){
         throw out_of_range("Tailles des tableaux différentes du nombre de caractères recherchés.");
     }
 
-    for (unsigned int i = 0; i < getNbChars(); i++){
-        passwordString[i] = getCharset().at(passwordArray->at(i));
+    for (unsigned int i = 0; i < _nbChars; i++){
+        passwordString[i] = _charset.at(passwordArray->at(i));
     }
 }
 
-void MyThread::startBruteForce(QVector<unsigned int> currentPasswordArray, unsigned int nbToCompute, void (*updateLoadingBar) (double)){
+void MyThread::startBruteForce(QVector<unsigned int> currentPasswordArray, unsigned int nbToCompute, ThreadManager tm){
     QCryptographicHash md5(QCryptographicHash::Md5);
     QString currentHash;
     QString currentPasswordString;
@@ -69,20 +49,20 @@ void MyThread::startBruteForce(QVector<unsigned int> currentPasswordArray, unsig
     unsigned int i;
 
     unsigned int nbComputed = 0;
-    unsigned int nbValidChars = getCharset().length();
+    unsigned int nbValidChars = _charset.length();
 
-    currentPasswordString.resize(getNbChars());
+    currentPasswordString.resize(_nbChars);
 
     indexToChar(&currentPasswordString, &currentPasswordArray);
 
     /*
      * Tant qu'un autre thread n'a pas trouvé ou que le thread actuel n'a pas tout essayé.
      */
-    while (getIsFound() == false && nbComputed < nbToCompute) {
+    while (_isFound == false && nbComputed < nbToCompute) {
         /* On vide les données déjà ajoutées au générateur */
         md5.reset();
         /* On préfixe le mot de passe avec le sel */
-        md5.addData(getSalt().toLatin1());
+        md5.addData(_salt.toLatin1());
         md5.addData(currentPasswordString.toLatin1());
         /* On calcul le hash */
         currentHash = md5.result().toHex();
@@ -90,7 +70,7 @@ void MyThread::startBruteForce(QVector<unsigned int> currentPasswordArray, unsig
         /*
          * Si on a trouvé, on retourne le mot de passe courant (sans le sel)
          */
-        if (currentHash == getHash()){
+        if (currentHash == _hash){
             setIsFound(true);
             setSolution(currentPasswordString);
         }
@@ -100,7 +80,7 @@ void MyThread::startBruteForce(QVector<unsigned int> currentPasswordArray, unsig
          * de l'état de notre avancement (pour la barre de progression)
          */
         if ((nbComputed % 1000) == 0) {
-            updateLoadingBar((double)1000/nbToCompute);
+            tm.incrementPercentComputed((double)1000/nbToCompute);
         }
 
 
