@@ -120,8 +120,6 @@ QString ThreadManager::startHacking(
     distribution = findEqualDistribution(nbToCompute, nbThreads);
     startingPasswordsStates = findStartingPasswordStates(distribution, nbChars, charset);
 
-    // QVector<unsigned int> currentPasswordArray, unsigned int nbToCompute, void (*updateLoadingBar) (double)
-
     for(int i = 0; i < (int)nbThreads; i++){
         PcoThread *currentThread = new PcoThread(bruteForceEnv.startBruteForce, startingPasswordsStates.at(i), distribution.at(i), this);
         threadList.push_back(currentThread);

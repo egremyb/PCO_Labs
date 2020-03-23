@@ -5,7 +5,7 @@
 using namespace std;
 
 MyThread::MyThread(QString charset, QString salt, QString hash, unsigned int nbChars){
-    MyThread::_charset  = charset;
+    _charset  = charset;
     _salt     = salt;
     _hash     = hash;
     _nbChars  = nbChars;
@@ -28,7 +28,7 @@ void MyThread::setSolution(QString solution){
 }
 
 QString MyThread::getSolution(){
-    return this->_solution;
+    return _solution;
 }
 
 void MyThread::indexToChar(QString* passwordString, QVector<unsigned int>* passwordArray){
