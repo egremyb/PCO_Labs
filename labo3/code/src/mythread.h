@@ -6,25 +6,29 @@
 #include <pcosynchro/pcomutex.h>
 #include "threadmanager.h"
 
-class MyThread{
-private :
-    static QString _charset;
-    static QString _salt;
-    static QString _hash;
-    static unsigned int _nbChars;
-    static unsigned int _isFound;
-    static QString _solution;
+/**
+ * Initialise les paramètres des processus.
+ * @param charset Liste de charactères à tester pour le brute force.
+ * @param salt Sel à utiliser sur la génération des hashs.
+ * @param hash Hash recherché.
+ * @param nbChars Nombre de charactères dont le mot de passe d'origine est composé.
+ */
+void initialiaze(QString& charset, QString& salt, QString& hash, unsigned int& nbChars);
 
-    static void setIsFound(unsigned int isFound);
-    static void setSolution(QString solution);
+/**
+ * Exécute le brute force.
+ * @param startingPasswordState État de départ où les charactères du mot de passe s'incrémentent.
+ * @param nbToCompute Nombre de mot de passe à tester.
+ * @param tm Pointeur sur le manageur de processus (Thread Manager).
+ */
+void startBruteForce(QVector<unsigned int> startingPasswordState,
+                     const unsigned int& nbToCompute,
+                     ThreadManager* tm);
 
-    static void indexToChar(QString* passwordString, QVector<unsigned int>* passwordArray);
-
-public:
-    MyThread(QString charset, QString salt, QString hash, unsigned int nbChars);
-    QString getSolution();
-    static void startBruteForce(QVector<unsigned int> startingPasswordState, unsigned int nbToCompute, ThreadManager tm);
-};
-
+/**
+ * Retourne la solution.
+ * @return La solution sous forme de string. Retourne "" si aucune solution trouvée.
+ */
+QString getSolution();
 
 #endif // MYTHREAD_H
