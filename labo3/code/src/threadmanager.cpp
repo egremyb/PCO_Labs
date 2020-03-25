@@ -1,5 +1,6 @@
 #include <QCryptographicHash>
 #include <QVector>
+#include <iostream>
 
 #include "threadmanager.h"
 #include "mythread.h"
@@ -126,8 +127,8 @@ QString ThreadManager::startHacking (
 
     std::vector<std::unique_ptr<PcoThread>> threadList;
 
-    // initilialise les paramètres pour les processus
-    initialiaze(charset, salt, hash, nbChars);
+    // initilialise les paramètres pour les threads
+    initialize(charset, salt, hash, nbChars);
 
     // calcule le nombre de mot de passe à tester
     nbToCompute = intPow(charset.length(), nbChars);
@@ -138,13 +139,13 @@ QString ThreadManager::startHacking (
     // trouve les mots de passe de départ selon la distribution
     startingPasswordsStates = findStartingPasswordStates(distribution, nbChars, charset);
 
-    // lance les processus avec leur mot de passe de départ et le nombre de mdp à tester
+    // lance les threads avec leur mot de passe de départ et le nombre de mdp à tester
     for(int i = 0; i < (int)nbThreads; i++) {
         PcoThread *currentThread = new PcoThread(startBruteForce, startingPasswordsStates.at(i), distribution.at(i), this);
         threadList.push_back(std::unique_ptr<PcoThread>(currentThread));
     }
 
-    // synchronise les processus
+    // synchronise les threads
     for (int i = 0; i < (int) threadList.size(); i++){
         threadList[i]->join();
     }

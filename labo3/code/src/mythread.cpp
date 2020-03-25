@@ -1,6 +1,7 @@
 #include "mythread.h"
 #include <QCryptographicHash>
 #include <stdexcept>
+#include <iostream>
 
 using namespace std;
 
@@ -31,7 +32,7 @@ void indexToChar(QString& passwordString, QVector<unsigned int>& passwordArray) 
 
 /* public */
 
-void initialiaze(QString& charset, QString& salt, QString& hash, unsigned int& nbChars) {
+void initialize(QString& charset, QString& salt, QString& hash, unsigned int& nbChars) {
     _charset   = charset;
     _salt      = salt;
     _hash      = hash;
@@ -56,7 +57,7 @@ void startBruteForce(QVector<unsigned int> currentPasswordArray,
     unsigned int nbComputed = 0;
     unsigned int nbValidChars = _charset.length();
 
-    // Incremente le nombre de processus
+    // Incremente le nombre de threads
     mutexIncrementThreads.lock();
     _nbThreads++;
     mutexIncrementThreads.unlock();
@@ -79,7 +80,7 @@ void startBruteForce(QVector<unsigned int> currentPasswordArray,
         currentHash = md5.result().toHex();
 
         // Si on a trouvé, on retourne le mot de passe courant (sans le sel)
-        if (currentHash == _hash){
+        if (currentHash == _hash) {
             _isFound = true;
             _solution = currentPasswordString;
         }
