@@ -3,7 +3,7 @@
 //  / ___/ /__/ /_/ / / __// // / __// // / //
 // /_/   \___/\____/ /____/\___/____/\___/  //
 //                                          //
-// Auteurs : Prénom Nom, Prénom Nom
+// Auteurs : Arthur Bécaud, Bruno Egremy
 
 #include "skierbehavior.h"
 
@@ -17,7 +17,21 @@ int SkierBehavior::nextId = 1;
 
 void SkierBehavior::run()
 {
-    // A vous d'ajouter le comportement du skieur
+    // Monte avec le télécabine et descend
+    // tant que le télécabine est en service
+    while (cableCar->isInService()) {
+        cableCar->waitForCableCar(id);
+        // Vérifie que le télécabine soit encore en service
+        if (cableCar->isInService() == false) {
+            break;
+        }
+        // Monte dans le télécabine puis attend d'arriver en haut de la montagne
+        cableCar->goIn(id);
+        cableCar->waitInsideCableCar(id);
+        cableCar->goOut(id);
+        // Descend de la montagne en un temps aléatoire
+        goDownTheMountain();
+    }
 }
 
 void SkierBehavior::goDownTheMountain()

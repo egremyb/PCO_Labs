@@ -3,7 +3,7 @@
 //  / ___/ /__/ /_/ / / __// // / __// // / //
 // /_/   \___/\____/ /____/\___/____/\___/  //
 //                                          //
-// Auteurs : Prénom Nom, Prénom Nom
+// Auteurs : Arthur Bécaud, Bruno Egremy
 
 #ifndef PCOCABLECAR_H
 #define PCOCABLECAR_H
@@ -109,7 +109,7 @@ protected:
     /*!
      * \brief Le nombre de skieurs en attente sur le télécabine (en bas)
      */
-    unsigned int nbSkiersWaiting = 0;
+    static unsigned int nbSkiersWaiting;
 
     /*!
      * \brief nbSkrsInside Le nombre de skieurs dans le télécabine
@@ -122,6 +122,11 @@ protected:
     bool inService = true;
 
     // A vous d'ajouter les attributs dont vous avez besoin
+    static PcoSemaphore skiersWaitingOutside;
+    static PcoSemaphore skiersWaitingInside;
+
+    static PcoSemaphore mutexNbSkiersWaiting;
+
 };
 
 #endif // PCOCABLECAR_H
