@@ -1,0 +1,4 @@
+<map id="Launchable" name="Launchable">
+<area shape="rect" id="node2" href="$class_cable_car_behavior.html" title="La classe CableCarBehavior permet de représenter le comportement de la tâche télécabine. " alt="" coords="5,226,191,347"/>
+<area shape="rect" id="node3" href="$class_skier_behavior.html" title="La classe SkierBehavior est une classe abstraite qui représente le comportement d&#39;un skieur..." alt="" coords="215,204,400,369"/>
+</map>

@@ -1,0 +1,6 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$class_cable_car_interface.html" title="La classe CableCarInterface est une classe abstraite qui représente l&#39;interface d&#39;un télécabine afin ..." alt="" coords="21,5,149,32"/>
+<area shape="rect" id="node2" href="$class_cable_car.html" title="La classe CableCar est une classe abstraite qui représente un télécabine. " alt="" coords="212,31,289,57"/>
+<area shape="rect" id="node3" href="$class_pco_cable_car.html" title="La classe PcoCableCar implémente la classe abstraite CableCar, la classe PcoCableCar doit fournir les..." alt="" coords="337,31,437,57"/>
+<area shape="rect" id="node4" href="$class_cable_car_skier_interface.html" title="La classe CableCarSkierInterface est une classe abstraite qui représente l&#39;interface d&#39;un télécabine ..." alt="" coords="5,56,164,83"/>
+</map>

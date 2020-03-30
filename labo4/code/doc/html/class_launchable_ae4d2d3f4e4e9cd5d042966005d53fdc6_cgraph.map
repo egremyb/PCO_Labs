@@ -1,0 +1,4 @@
+<map id="Launchable::join" name="Launchable::join">
+<area shape="rect" id="node2" href="$class_launchable.html#a51e6383bf9840c137518406f45aeafe0" title="Message affiché après la fin du thread. " alt="" coords="169,5,356,47"/>
+<area shape="rect" id="node3" href="$class_launchable.html#a4f43b5cd2bc9370f158b97876579db32" title="La fonction à lancer, ici abstraite (virtuelle pure), est redéfinie par les classes concrètes qui hér..." alt="" coords="205,71,320,98"/>
+</map>

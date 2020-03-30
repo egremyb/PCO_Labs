@@ -1,0 +1,10 @@
+<map id="telecabine/cablecarinterface.h" name="telecabine/cablecarinterface.h">
+<area shape="rect" id="node2" href="$cablecar_8h.html" title="telecabine/cablecar.h" alt="" coords="243,80,389,107"/>
+<area shape="rect" id="node8" href="$cablecarbehavior_8h.html" title="telecabine/cablecarbehavior.h" alt="" coords="413,80,608,107"/>
+<area shape="rect" id="node3" href="$pcocablecar_8h.html" title="telecabine/pcocablecar.h" alt="" coords="254,155,421,181"/>
+<area shape="rect" id="node6" href="$skierbehavior_8h.html" title="telecabine/skierbehavior.h" alt="" coords="56,155,229,181"/>
+<area shape="rect" id="node4" href="$main_8cpp.html" title="telecabine/main.cpp" alt="" coords="421,229,560,256"/>
+<area shape="rect" id="node5" href="$pcocablecar_8cpp.html" title="telecabine/pcocablecar.cpp" alt="" coords="217,229,397,256"/>
+<area shape="rect" id="node7" href="$skierbehavior_8cpp.html" title="telecabine/skierbehavior.cpp" alt="" coords="5,229,192,256"/>
+<area shape="rect" id="node9" href="$cablecarbehavior_8cpp.html" title="telecabine/cablecarbehavior.cpp" alt="" coords="528,155,736,181"/>
+</map>

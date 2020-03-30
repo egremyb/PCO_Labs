@@ -1,0 +1,4 @@
+<map id="CableCarInterface" name="CableCarInterface">
+<area shape="rect" id="node2" href="$class_cable_car.html" title="La classe CableCar est une classe abstraite qui représente un télécabine. " alt="" coords="30,189,137,267"/>
+<area shape="rect" id="node3" href="$class_pco_cable_car.html" title="La classe PcoCableCar implémente la classe abstraite CableCar, la classe PcoCableCar doit fournir les..." alt="" coords="5,315,161,597"/>
+</map>

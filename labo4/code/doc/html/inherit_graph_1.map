@@ -1,0 +1,5 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="node1" href="$class_launchable.html" title="La classe Launchable est une classe abstraite qui représente le fait d&#39;avoir un thread associé qui pe..." alt="" coords="5,31,93,57"/>
+<area shape="rect" id="node2" href="$class_cable_car_behavior.html" title="La classe CableCarBehavior permet de représenter le comportement de la tâche télécabine. " alt="" coords="141,5,269,32"/>
+<area shape="rect" id="node3" href="$class_skier_behavior.html" title="La classe SkierBehavior est une classe abstraite qui représente le comportement d&#39;un skieur..." alt="" coords="154,56,257,83"/>
+</map>
