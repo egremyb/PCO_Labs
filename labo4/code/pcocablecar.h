@@ -121,11 +121,12 @@ protected:
      */
     bool inService = true;
 
-    // A vous d'ajouter les attributs dont vous avez besoin
+    // Barrière et mutex commun à toutes télécabines
     static PcoSemaphore skiersWaitingOutside;
-    static PcoSemaphore skiersWaitingInside;
-
     static PcoSemaphore mutexNbSkiersWaiting;
+
+    // Barrière pour chaque télécabine
+    PcoSemaphore skiersWaitingInside = PcoSemaphore(0);
 
 };
 

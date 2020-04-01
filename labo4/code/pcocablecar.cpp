@@ -18,15 +18,18 @@ constexpr unsigned int SECOND_IN_MICROSECONDS = 1000000;
 // Initialise les membres statiques de la classe
 unsigned int PcoCableCar::nbSkiersWaiting = 0;
 PcoSemaphore PcoCableCar::skiersWaitingOutside(0);
-PcoSemaphore PcoCableCar::skiersWaitingInside(0);
 PcoSemaphore PcoCableCar::mutexNbSkiersWaiting(1);
 
 PcoCableCar::PcoCableCar(const unsigned int capacity) : capacity(capacity) { }
 
 PcoCableCar::~PcoCableCar() { }
 
-void PcoCableCar::waitForCableCar(int id)
-{
+void PcoCableCar::waitForCableCar(int id) {
+    // Vérifie si la télécabine est encore en service
+    if(isInService() == false) {
+        return;
+    }
+
     // Increment du nombre de skieurs en attente
     mutexNbSkiersWaiting.acquire();
     nbSkiersWaiting++;
@@ -38,22 +41,21 @@ void PcoCableCar::waitForCableCar(int id)
     skiersWaitingOutside.acquire();
 }
 
-void PcoCableCar::waitInsideCableCar(int id)
-{
+void PcoCableCar::waitInsideCableCar(int id) {
     skiersWaitingInside.acquire();
 }
 
+// Non utilisé
 void PcoCableCar::goIn(int id) { }
 
+// Non utilisé
 void PcoCableCar::goOut(int id) { }
 
-bool PcoCableCar::isInService()
-{
+bool PcoCableCar::isInService() {
     return inService;
 }
 
-void PcoCableCar::endService()
-{
+void PcoCableCar::endService() {
     // Ferme le service du télécabine
     inService = false;
 
@@ -63,32 +65,29 @@ void PcoCableCar::endService()
     }
 }
 
-void PcoCableCar::goUp()
-{
+void PcoCableCar::goUp() {
     qDebug() << "Telecabine monte avec" << nbSkiersInside << "skieur(s)," << nbSkiersWaiting << "attend(s) en bas";
     PcoThread::usleep((MIN_SECONDS_DELAY + QRandomGenerator::system()->bounded(MAX_SECONDS_DELAY + 1)) * SECOND_IN_MICROSECONDS);
 }
 
-void PcoCableCar::goDown()
-{
+void PcoCableCar::goDown() {
     qDebug() << "Telecabine descend";
     PcoThread::usleep((MIN_SECONDS_DELAY + QRandomGenerator::system()->bounded(MAX_SECONDS_DELAY + 1)) * SECOND_IN_MICROSECONDS);
 }
 
-void PcoCableCar::loadSkiers()
-{
-    // Pour ne pas partir à vide, le télécabine
+void PcoCableCar::loadSkiers() {
+    // Pour ne pas partir à vide, la télécabine
     // attend 5 secondes après chaque vérification
     // du nombre de skieurs en attente
     while (nbSkiersWaiting == 0 && isInService()) {
         PcoThread::usleep(5000000);
     }
 
-    // Rempli le télécabine tant qu'il y a de la place
+    // Rempli la télécabine tant qu'il y a de la place
     // et qu'il y a des skieurs en attente
     while (nbSkiersInside < capacity && nbSkiersWaiting != 0) {
 
-        // Autorise un skieur à monter dans le télécabine
+        // Autorise un skieur à monter dans la télécabine
         skiersWaitingOutside.release();
 
         // Décremente le nombre de skieurs en attente (section critique)
@@ -96,18 +95,17 @@ void PcoCableCar::loadSkiers()
         nbSkiersWaiting--;
         mutexNbSkiersWaiting.release();
 
-        // Incrémente le nombre de skieurs dans le télécabine
+        // Incrémente le nombre de skieurs dans la télécabine
         nbSkiersInside++;
     }
 }
 
-void PcoCableCar::unloadSkiers()
-{
-    // Vide le télécabine tant qu'il y a des skieurs à l'intérieur
+void PcoCableCar::unloadSkiers() {
+    // Vide la télécabine tant qu'il y a des skieurs à l'intérieur
     while (nbSkiersInside != 0) {
-        // Autorise un skieur à sortie du télécabine
+        // Autorise un skieur à sortir de la télécabine
         skiersWaitingInside.release();
-        // Décremente le nombre de skieur à l'intérieur du télécabine
+        // Décremente le nombre de skieur à l'intérieur de la télécabine
         nbSkiersInside--;
     }
 }

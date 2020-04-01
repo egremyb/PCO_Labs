@@ -15,17 +15,16 @@ constexpr unsigned int SECOND_IN_MICROSECONDS = 1000000;
 
 int SkierBehavior::nextId = 1;
 
-void SkierBehavior::run()
-{
-    // Monte avec le télécabine et descend
-    // tant que le télécabine est en service
+void SkierBehavior::run() {
+    // Monte avec la télécabine et descend
+    // tant que la télécabine est en service
     while (cableCar->isInService()) {
         cableCar->waitForCableCar(id);
         // Vérifie que le télécabine soit encore en service
         if (cableCar->isInService() == false) {
             break;
         }
-        // Monte dans le télécabine puis attend d'arriver en haut de la montagne
+        // Monte dans la télécabine puis attend d'arriver en haut de la montagne
         cableCar->goIn(id);
         cableCar->waitInsideCableCar(id);
         cableCar->goOut(id);
