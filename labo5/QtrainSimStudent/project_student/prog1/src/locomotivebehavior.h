@@ -11,6 +11,7 @@
 #include "locomotive.h"
 #include "launchable.h"
 #include "sharedsectioninterface.h"
+#include "ctrain_handler.h"
 
 /**
  * @brief La classe LocomotiveBehavior représente le comportement d'une locomotive
@@ -22,8 +23,24 @@ public:
      * \brief locomotiveBehavior Constructeur de la classe
      * \param loco la locomotive dont on représente le comportement
      */
-    LocomotiveBehavior(Locomotive& loco, std::shared_ptr<SharedSectionInterface> sharedSection /*, autres paramètres éventuels */) : loco(loco), sharedSection(sharedSection) {
-        // Eventuel code supplémentaire du constructeur
+    LocomotiveBehavior(Locomotive& loco,
+                       std::shared_ptr<SharedSectionInterface> sharedSection,
+                       unsigned start,
+                       unsigned forwardContacts[],
+                       unsigned backwardContacts[],
+                       unsigned forwardPoints[],
+                       unsigned backwardPoints[]) :
+        loco(loco), sharedSection(sharedSection), start(start), inverse(0u) {
+        // Copie les contacts
+        this->forwardContacts[0]  = forwardContacts[0];
+        this->forwardContacts[1]  = forwardContacts[1];
+        this->backwardContacts[0] = backwardContacts[0];
+        this->backwardContacts[1] = backwardContacts[1];
+        // Copie les aiguillages
+        this->forwardPoints[0]    = forwardPoints[0];
+        this->forwardPoints[1]    = forwardPoints[1];
+        this->backwardPoints[0]   = backwardPoints[0];
+        this->backwardPoints[1]   = backwardPoints[1];
     }
 
 protected:
@@ -52,11 +69,35 @@ protected:
      */
     std::shared_ptr<SharedSectionInterface> sharedSection;
 
-    /*
-     * Vous êtes libres d'ajouter des méthodes ou attributs
-     *
-     * Par exemple la priorité ou le parcours
+    /**
+     * @brief start Numéro de contact où commence la locomotive
      */
+    unsigned start;
+
+    /**
+     * @brief forwardContacts Tableau contenant les numéros de contacts pour la requête et l'acceptation en entrée de la section partagée
+     */
+    unsigned forwardContacts[2];
+
+    /**
+     * @brief backwardContacts Tableau contenant les numéros de contacts pour la requête et l'acceptation en sortie de la section partagée
+     */
+    unsigned backwardContacts[2];
+
+    /**
+     * @brief inverse Indicateur si forwardContacts[] et backwardContacts[] doivent être inversés
+     */
+    unsigned inverse;
+
+    /**
+     * @brief forwardPoints TODO
+     */
+    unsigned forwardPoints[2];
+
+    /**
+     * @brief backwardPoints TODO
+     */
+    unsigned backwardPoints[2];
 };
 
 #endif // LOCOMOTIVEBEHAVIOR_H

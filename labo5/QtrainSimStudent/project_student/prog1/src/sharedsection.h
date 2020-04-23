@@ -28,9 +28,7 @@ public:
      * @brief SharedSection Constructeur de la classe qui représente la section partagée.
      * Initialisez vos éventuels attributs ici, sémaphores etc.
      */
-    SharedSection() {
-        // TODO
-    }
+    SharedSection() : sectionOccupied(0), acceptedLocomotive(-1) { }
 
     /**
      * @brief request Méthode a appeler pour indiquer que la locomotive désire accéder à la
@@ -39,9 +37,30 @@ public:
      * @param priority La priorité de la locomotive qui fait l'appel
      */
     void request(Locomotive& loco, Priority priority) override {
-        // TODO
 
-        // Exemple de message dans la console globale
+        // test flag occupied
+        // Changement du flag occupied
+
+        // Vérifie  si la section partagé est occupée
+        mutexSectionOccupied.acquire();
+        if (sectionOccupied ==  1) {
+            mutexSectionOccupied.release();
+
+            // Message dans la console globale
+            //afficher_message(qPrintable(QString("The engine no. %1 waits for access to the shared section.").arg(loco.numero())));
+
+        } else {
+            // Indique que la voie est à présent occupée puis continue son chemin sur celle-ci
+            sectionOccupied = 1;
+            mutexSectionOccupied.release();
+
+            mutexAcceptedLocomotive.acquire();
+            acceptedLocomotive = loco.numero();
+            mutexAcceptedLocomotive.release();
+        }
+
+
+        // Message dans la console globale
         afficher_message(qPrintable(QString("The engine no. %1 requested the shared section.").arg(loco.numero())));
     }
 
@@ -55,9 +74,29 @@ public:
      * @param priority La priorité de la locomotive qui fait l'appel
      */
     void getAccess(Locomotive &loco, Priority priority) override {
-        // TODO
+        // Vérifie si la locomotive appelante est accepté
+        mutexAcceptedLocomotive.acquire();
+        if(loco.numero() != acceptedLocomotive){
+            mutexAcceptedLocomotive.release();
+            // Arrête la locomotive et attend de pouvoir acceder à la section
+            loco.arreter();
+            mutexSharedSection.acquire();
+            // Indique que la locomotive appelante est à présent acceptée
+            mutexAcceptedLocomotive.acquire();
+            acceptedLocomotive = loco.numero();
+            mutexAcceptedLocomotive.release();
+            // Indique que la section partagée est à présent occupée puis redémarre
+            mutexSectionOccupied.acquire();
+            sectionOccupied = 1;
+            mutexSectionOccupied.release();
+            loco.demarrer();
+        } else {
+            // La locomotive acceptée continue sa route
+            mutexAcceptedLocomotive.release();
+            mutexSharedSection.acquire();
+        }
 
-        // Exemple de message dans la console globale
+        // Message dans la console globale
         afficher_message(qPrintable(QString("The engine no. %1 accesses the shared section.").arg(loco.numero())));
     }
 
@@ -67,9 +106,18 @@ public:
      * @param loco La locomotive qui quitte la section partagée
      */
     void leave(Locomotive& loco) override {
-        // TODO
+        // Libère la  voie
+        mutexSharedSection.release();
+        // Indique que la voie est à présent libre
+        mutexSectionOccupied.acquire();
+        sectionOccupied = 0;
+        mutexSectionOccupied.release();
+        //
+        mutexAcceptedLocomotive.acquire();
+        acceptedLocomotive = -1;
+        mutexAcceptedLocomotive.release();
 
-        // Exemple de message dans la console globale
+        // Message dans la console globale
         afficher_message(qPrintable(QString("The engine no. %1 leaves the shared section.").arg(loco.numero())));
     }
 
@@ -78,6 +126,13 @@ public:
 private:
     // Méthodes privées ...
     // Attributes privés ...
+
+    int          sectionOccupied;
+    int          acceptedLocomotive;
+
+    PcoSemaphore mutexSectionOccupied    = PcoSemaphore(1);
+    PcoSemaphore mutexAcceptedLocomotive = PcoSemaphore(1);
+    PcoSemaphore mutexSharedSection      = PcoSemaphore(1);
 };
 
 

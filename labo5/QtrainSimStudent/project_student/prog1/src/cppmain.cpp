@@ -87,6 +87,16 @@ int cmain()
     // Exemple de position de départ
     locoB.fixerPosition(22, 28);
 
+    // Parcours des locomotives (partie partagée en commentaire)
+    int parcoursLocoA[] = {/*25, 24, 23,*/     16, /*15, 14, 7, 6, */ 5, /*34, 33, 32*/};
+    int departA = 25;
+    int contactRequete1 = 23;
+    int contactAccess1 = 16;
+    int contactRequete2 = 34;
+    int contactAccess2 = 5;
+
+    int parcoursLocoB[] = {/*22, 21, 20, 19,*/ 13, /*15, 14, 7, 6, */ 1, /*31, 30, 29, 28*/};
+
     /***********
      * Message *
      **********/
@@ -102,7 +112,7 @@ int cmain()
     std::shared_ptr<SharedSectionInterface> sharedSection = std::make_shared<SharedSection>();
 
     // Création du thread pour la loco 0
-    std::unique_ptr<Launchable> locoBehaveA = std::make_unique<LocomotiveBehavior>(locoA, sharedSection /*, autres paramètres ...*/);
+    std::unique_ptr<Launchable> locoBehaveA = std::make_unique<LocomotiveBehavior>(locoA, sharedSection, /*, autres paramètres ...*/);
     // Création du thread pour la loco 1
     std::unique_ptr<Launchable> locoBehaveB = std::make_unique<LocomotiveBehavior>(locoB, sharedSection /*, autres paramètres ...*/);
 

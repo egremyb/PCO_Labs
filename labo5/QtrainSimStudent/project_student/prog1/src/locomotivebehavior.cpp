@@ -17,6 +17,11 @@ void LocomotiveBehavior::run()
 
     /* A vous de jouer ! */
 
+
+    attendre_contact(forwardContacts[0]);
+    sharedSection->request(loco, );
+
+
     // Vous pouvez appeler les méthodes de la section partagée comme ceci :
     //sharedSection->request(loco);
     //sharedSection->getAccess(loco);
