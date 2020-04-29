@@ -3,26 +3,50 @@
 //  / ___/ /__/ /_/ / / __// // / __// // / //
 // /_/   \___/\____/ /____/\___/____/\___/  //
 //                                          //
-// Auteurs : Nom Prénom, Nom Prénom
+// Auteurs : Arthur Bécaud et Bruno Egremy
 //
 #include "locomotivebehavior.h"
 #include "ctrain_handler.h"
 
 void LocomotiveBehavior::run()
 {
-    //Initialisation de la locomotive
+    // Initialisation de la locomotive
     loco.allumerPhares();
     loco.demarrer();
     loco.afficherMessage("Ready!");
 
-    /* A vous de jouer ! */
+    // Fait avancer la locomotive à l'infini
+    while (true) {
+        // Réalise deux tours de la locomotive dans le sens horaire
+        for (int i = 0; i < 2; i++) {
+            lapManagement(start, forwardContacts[0], forwardContacts[1], forwardLeaveContact, forwardPoints[0], forwardPoints[1], backwardPoints[0], backwardPoints[1]);
+        }
+        // Inverse le sens de la locomotive
+        loco.inverserSens();
+        // Réalise deux tours de la locomotive dans le sens anti-horaire
+        for (int i = 0; i < 2; i++) {
+            lapManagement(start, backwardContacts[0], backwardContacts[1], backwardLeaveContact, backwardPoints[0], backwardPoints[1], forwardPoints[0], forwardPoints[1]);
+        }
+        // Inverse le sens de la locomotive
+        loco.inverserSens();
+    }
+}
 
-    // Vous pouvez appeler les méthodes de la section partagée comme ceci :
-    //sharedSection->request(loco);
-    //sharedSection->getAccess(loco);
-    //sharedSection->leave(loco);
-
-    while(1) {}
+void LocomotiveBehavior::lapManagement(unsigned startContact, unsigned requestContact, unsigned accessContact, unsigned leaveContact, unsigned entryPoint, unsigned entryPosition, unsigned leavePoint, unsigned leavePosition) {
+    // Attend que la locomotive atteigne le contact de requête
+    attendre_contact(requestContact);
+    sharedSection->request(loco, (SharedSectionInterface::Priority) loco.priority);
+    // Attend que la locomotive atteigne le contact d'accès à la section partagée
+    attendre_contact(accessContact);
+    sharedSection->getAccess(loco, (SharedSectionInterface::Priority) loco.priority);
+    // Redirige les deux aiguillage de la section partagée
+    diriger_aiguillage(entryPoint, entryPosition, 0);
+    diriger_aiguillage(leavePoint, leavePosition, 0);
+    // Attend que la locomotive sorte de la section puis informe sa sortie
+    attendre_contact(leaveContact);
+    sharedSection->leave(loco);
+    // Attend que la locomotive retourne au point de départ
+    attendre_contact(startContact);
 }
 
 void LocomotiveBehavior::printStartMessage()

@@ -3,7 +3,7 @@
 //  / ___/ /__/ /_/ / / __// // / __// // / //
 // /_/   \___/\____/ /____/\___/____/\___/  //
 //                                          //
-// Auteurs : Nom Prénom, Nom Prénom
+// Auteurs : Arthur Bécaud et Bruno Egremy
 //
 #ifndef SHAREDSECTION_H
 #define SHAREDSECTION_H
@@ -28,7 +28,7 @@ public:
      * @brief SharedSection Constructeur de la classe qui représente la section partagée.
      * Initialisez vos éventuels attributs ici, sémaphores etc.
      */
-    SharedSection() : sectionOccupied(0), acceptedLocomotive(-1) { }
+    SharedSection() : sectionOccupied(0) { }
 
     /**
      * @brief request Méthode a appeler pour indiquer que la locomotive désire accéder à la
@@ -104,7 +104,6 @@ private:
     // Attributes privés ...
 
     int          sectionOccupied;
-    int          acceptedLocomotive;
 
     PcoSemaphore mutexSectionOccupied    = PcoSemaphore(1);
     PcoSemaphore mutexAcceptedLocomotive = PcoSemaphore(1);

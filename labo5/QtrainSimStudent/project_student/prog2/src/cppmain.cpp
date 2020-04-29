@@ -3,7 +3,7 @@
 //  / ___/ /__/ /_/ / / __// // / __// // / //
 // /_/   \___/\____/ /____/\___/____/\___/  //
 //                                          //
-// Auteurs : Nom Prénom, Nom Prénom
+// Auteurs : Arthur Bécaud et Bruno Egremy
 //
 #include "ctrain_handler.h"
 
@@ -24,7 +24,8 @@ static Locomotive locoB(42 /* Numéro (pour commande trains sur maquette réelle
 //Arret d'urgence
 void emergency_stop()
 {
-    // TODO
+    locoA.arreter();
+    locoB.arreter();
 
     afficher_message("\nSTOP!");
 }
@@ -49,7 +50,7 @@ int cmain()
     // Vous devrez utiliser cette fonction pour la section partagée pour aiguiller les locos
     // sur le bon parcours (par exemple à la sortie de la section partagée) vous pouvez l'
     // appeler depuis vos thread des locos par ex.
-    diriger_aiguillage(1,  TOUT_DROIT, 0);
+    diriger_aiguillage(1,  DEVIE     , 0);
     diriger_aiguillage(2,  DEVIE     , 0);
     diriger_aiguillage(3,  DEVIE     , 0);
     diriger_aiguillage(4,  TOUT_DROIT, 0);
@@ -58,7 +59,7 @@ int cmain()
     diriger_aiguillage(7,  TOUT_DROIT, 0);
     diriger_aiguillage(8,  DEVIE     , 0);
     diriger_aiguillage(9,  DEVIE     , 0);
-    diriger_aiguillage(10, TOUT_DROIT, 0);
+    diriger_aiguillage(10, DEVIE     , 0);
     diriger_aiguillage(11, TOUT_DROIT, 0);
     diriger_aiguillage(12, TOUT_DROIT, 0);
     diriger_aiguillage(13, TOUT_DROIT, 0);
@@ -87,6 +88,30 @@ int cmain()
     // Exemple de position de départ
     locoB.fixerPosition(22, 28);
 
+    // Parcours des locomotives (partie partagée en commentaire)
+    // int parcoursLocoA[] = {/*25, 24, 23,*/     16, /*15, 14, 7, 6, */ 5, /*34, 33, 32*/};
+    // int parcoursLocoB[] = {/*22, 21, 20, 19,*/ 13, /*15, 14, 7, 6, */ 1, /*31, 30, 29, 28*/};
+
+    // Pararmètres des comportements des locomotives
+    unsigned startA              = 25;
+    unsigned forwardContactsA[]  = {24, 23};
+    unsigned forwardLeaveContactsA = 5;
+    unsigned backwardContactsA[] = {33, 34};
+    unsigned backwardLeaveContactsA = 16;
+    unsigned forwardPointsA[]    = {9, DEVIE};
+    unsigned backwardPointsA[]   = {2, DEVIE};
+
+    unsigned startB              = 22;
+    unsigned forwardContactsB[]  = {20, 19};
+    unsigned forwardLeaveContactsB = 1;
+    unsigned backwardContactsB[] = {30, 31};
+    unsigned backwardLeaveContactsB = 13;
+    unsigned forwardPointsB[]    = {9, TOUT_DROIT};
+    unsigned backwardPointsB[]   = {2, TOUT_DROIT};
+
+    locoA.priority = (int) SharedSectionInterface::Priority::HighPriority;
+    locoB.priority = (int) SharedSectionInterface::Priority::LowPriority;
+
     /***********
      * Message *
      **********/
@@ -102,9 +127,9 @@ int cmain()
     std::shared_ptr<SharedSectionInterface> sharedSection = std::make_shared<SharedSection>();
 
     // Création du thread pour la loco 0
-    std::unique_ptr<Launchable> locoBehaveA = std::make_unique<LocomotiveBehavior>(locoA, sharedSection /*, autres paramètres ...*/);
+    std::unique_ptr<Launchable> locoBehaveA = std::make_unique<LocomotiveBehavior>(locoA, sharedSection, startA, forwardContactsA, forwardLeaveContactsA, backwardContactsA, backwardLeaveContactsA, forwardPointsA, backwardPointsA);
     // Création du thread pour la loco 1
-    std::unique_ptr<Launchable> locoBehaveB = std::make_unique<LocomotiveBehavior>(locoB, sharedSection /*, autres paramètres ...*/);
+    std::unique_ptr<Launchable> locoBehaveB = std::make_unique<LocomotiveBehavior>(locoB, sharedSection, startB, forwardContactsB, forwardLeaveContactsB, backwardContactsB, backwardLeaveContactsB, forwardPointsB, backwardPointsB);
 
     // Lanchement des threads
     afficher_message(qPrintable(QString("Lancement thread loco A (numéro %1)").arg(locoA.numero())));
