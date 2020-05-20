@@ -19,13 +19,13 @@ void LocomotiveBehavior::run()
     while (true) {
         // Réalise deux tours de la locomotive dans le sens horaire
         for (int i = 0; i < 1; i++) {
-            lapManagement(start, forwardContacts[0], forwardContacts[1], backwardContacts[1], forwardPoints[0], forwardPoints[1], backwardPoints[0], backwardPoints[1]);
+            lapManagement(start, forwardContacts[0], forwardContacts[0], backwardContacts[1], forwardPoints[0], forwardPoints[1], backwardPoints[0], backwardPoints[1]);
         }
         // Inverse le sens de la locomotive
         loco.inverserSens();
         // Réalise deux tours de la locomotive dans le sens anti-horaire
         for (int i = 0; i < 1; i++) {
-            lapManagement(start, backwardContacts[0], backwardContacts[1], forwardContacts[1], backwardPoints[0], backwardPoints[1], forwardPoints[0], forwardPoints[1]);
+            lapManagement(start, backwardContacts[0], backwardContacts[0], forwardContacts[1], backwardPoints[0], backwardPoints[1], forwardPoints[0], forwardPoints[1]);
         }
         // Inverse le sens de la locomotive
         loco.inverserSens();
@@ -33,9 +33,9 @@ void LocomotiveBehavior::run()
 }
 
 void LocomotiveBehavior::lapManagement(unsigned startContact, unsigned requestContact, unsigned accessContact, unsigned leaveContact, unsigned entryPoint, unsigned entryPosition, unsigned leavePoint, unsigned leavePosition) {
-    // Attend que la locomotive atteigne le contact de requête
-    attendre_contact(requestContact);
-    sharedSection->request(loco, (SharedSectionInterface::Priority) 0);
+    // Attend que la locomotive atteigne le contact de requête (pas néscéssaire donc pas utilisée)
+    // attendre_contact(requestContact);
+    // sharedSection->request(loco, (SharedSectionInterface::Priority) 0);
     // Attend que la locomotive atteigne le contact d'accès à la section partagée
     attendre_contact(accessContact);
     sharedSection->getAccess(loco, (SharedSectionInterface::Priority) 0);

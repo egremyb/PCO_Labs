@@ -37,10 +37,23 @@ public:
      * @param priority La priorité de la locomotive qui fait l'appel
      */
     void request(Locomotive& loco, Priority priority) override {
+        afficher_message(qPrintable(QString("The engine no. %1 request the shared section.").arg(loco.numero())));
+    }
 
-        afficher_message(qPrintable(QString("The engine no. %1 request.").arg(loco.numero())));
+    /**
+     * @brief getAccess Méthode à appeler pour accéder à la section partagée, doit arrêter la
+     * locomotive et mettre son thread en attente si la section est occupée ou va être occupée
+     * par une locomotive de plus haute priorité. Si la locomotive et son thread ont été mis en
+     * attente, le thread doit être reveillé lorsque la section partagée est à nouveau libre et
+     * la locomotive redémarée. (méthode à appeler un contact avant la section partagée).
+     * @param loco La locomotive qui essaie accéder à la section partagée
+     * @param priority La priorité de la locomotive qui fait l'appel
+     */
+    void getAccess(Locomotive &loco, Priority priority) override {
 
-        // Vérifie  si la section partagé est occupée
+        afficher_message(qPrintable(QString("The engine no. %1 will try to access the shared section.").arg(loco.numero())));
+
+        // Vérifie si la section partagé est occupée
         mutexSectionOccupied.acquire();
         if (sectionOccupied == 1) {
             mutexSectionOccupied.release();
@@ -65,19 +78,6 @@ public:
             mutexSharedSection.acquire();
         }
 
-        afficher_message(qPrintable(QString("The engine no. %1 will access the section.").arg(loco.numero())));
-    }
-
-    /**
-     * @brief getAccess Méthode à appeler pour accéder à la section partagée, doit arrêter la
-     * locomotive et mettre son thread en attente si la section est occupée ou va être occupée
-     * par une locomotive de plus haute priorité. Si la locomotive et son thread ont été mis en
-     * attente, le thread doit être reveillé lorsque la section partagée est à nouveau libre et
-     * la locomotive redémarée. (méthode à appeler un contact avant la section partagée).
-     * @param loco La locomotive qui essaie accéder à la section partagée
-     * @param priority La priorité de la locomotive qui fait l'appel
-     */
-    void getAccess(Locomotive &loco, Priority priority) override {
         afficher_message(qPrintable(QString("The engine no. %1 access the shared section.").arg((loco.numero()))));
     }
 
@@ -87,12 +87,12 @@ public:
      * @param loco La locomotive qui quitte la section partagée
      */
     void leave(Locomotive& loco) override {
-        // Libère la  voie
-        mutexSharedSection.release();
         // Indique que la voie est à présent libre
         mutexSectionOccupied.acquire();
         sectionOccupied = 0;
         mutexSectionOccupied.release();
+        // Libère la  voie
+        mutexSharedSection.release();
 
         afficher_message(qPrintable(QString("The engine no. %1 leaves the shared section.").arg(loco.numero())));
     }
@@ -104,9 +104,7 @@ private:
     // Attributes privés ...
 
     int          sectionOccupied;
-
     PcoSemaphore mutexSectionOccupied    = PcoSemaphore(1);
-    PcoSemaphore mutexAcceptedLocomotive = PcoSemaphore(1);
     PcoSemaphore mutexSharedSection      = PcoSemaphore(1);
 };
 

@@ -114,15 +114,16 @@ protected:
 
 private:
     /**
-     * @brief lapManagement
-     * @param start
-     * @param requestContact
-     * @param accessContact
-     * @param leaveContact
-     * @param entryPoint
-     * @param entryPosition
-     * @param leavePoint
-     * @param leavePosition
+     * Gère la locomotive, en paramètre de cette instance de LocomotiveBehavior, pendant un tour.
+     * L'appel à cette fonction est bloquant jusqu'à la fin du tour.
+     * @param startContact Contact où commence la locomotive.
+     * @param requestContact Contact où la locomotive effectue la requête à la section partagée.
+     * @param accessContact Contact où la locomotive demande l'accès à la section partagée.
+     * @param leaveContact Contact où la locomotive quitte la section partagée.
+     * @param entryPoint Aguillage d'entrée de la section partagée.
+     * @param entryPosition Position à appliquer à l'aguillage d'entrée.
+     * @param leavePoint Aguillage de sortie de la section partagée.
+     * @param leavePosition Position à appliquer à l'aguillage de sortie.
      */
     void lapManagement(unsigned startContact, unsigned requestContact, unsigned accessContact, unsigned leaveContact, unsigned entryPoint, unsigned entryPosition, unsigned leavePoint, unsigned leavePosition);
 };

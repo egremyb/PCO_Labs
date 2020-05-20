@@ -32,7 +32,14 @@ void LocomotiveBehavior::run()
     }
 }
 
-void LocomotiveBehavior::lapManagement(unsigned startContact, unsigned requestContact, unsigned accessContact, unsigned leaveContact, unsigned entryPoint, unsigned entryPosition, unsigned leavePoint, unsigned leavePosition) {
+void LocomotiveBehavior::lapManagement(unsigned startContact,
+                                       unsigned requestContact,
+                                       unsigned accessContact,
+                                       unsigned leaveContact,
+                                       unsigned entryPoint,
+                                       unsigned entryPosition,
+                                       unsigned leavePoint,
+                                       unsigned leavePosition) {
     // Attend que la locomotive atteigne le contact de requête
     attendre_contact(requestContact);
     sharedSection->request(loco, (SharedSectionInterface::Priority) loco.priority);
@@ -42,7 +49,7 @@ void LocomotiveBehavior::lapManagement(unsigned startContact, unsigned requestCo
     // Redirige les deux aiguillage de la section partagée
     diriger_aiguillage(entryPoint, entryPosition, 0);
     diriger_aiguillage(leavePoint, leavePosition, 0);
-    // Attend que la locomotive sorte de la section puis informe sa sortie
+    // Attend que la locomotive sorte de la section puis informe de sa sortie
     attendre_contact(leaveContact);
     sharedSection->leave(loco);
     // Attend que la locomotive retourne au point de départ

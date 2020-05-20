@@ -28,7 +28,7 @@ public:
      * @brief SharedSection Constructeur de la classe qui représente la section partagée.
      * Initialisez vos éventuels attributs ici, sémaphores etc.
      */
-    SharedSection() : sectionOccupied(0) { }
+    SharedSection() : sectionOccupied(0), nbWaitingForSection(0) { }
 
     /**
      * @brief request Méthode a appeler pour indiquer que la locomotive désire accéder à la
@@ -65,41 +65,9 @@ public:
     void getAccess(Locomotive &loco, Priority priority) override {
 
         bool isStopped = false;
-        bool accessible = false;
 
         // Vérifie si la locomotive peut accéder la section partagée
-        while (!accessible) {
-            // Vérifie si la section est occupée
-            mutexSectionOccupied.acquire();
-            if (sectionOccupied == 0) {
-
-                // Vérifie les FIFO d'accès selon la prioritée la loco courante
-                mutexAccessHighPriority.acquire();
-                switch (priority) {
-                    case Priority::LowPriority:
-                        // Vérifie si la FIFO haute priorité est vide
-                        if (accessHighPriority.empty() == true) {
-                            // Vérifie si la tête de la FIFO basse priorité correspond à la loco courante
-                            mutexAccessLowPriority.acquire();
-                            if (accessLowPriority.front()->numero() == loco.numero()) {
-                                accessible = true;
-                            }
-                            mutexAccessLowPriority.release();
-                        }
-                        break;
-                    case Priority::HighPriority:
-                        // Vérifie si la tête de la FIFO haute priorité correspond à la loco courante
-                        if (accessHighPriority.front()->numero() == loco.numero()) {
-                            accessible = true;
-                        }
-                        break;
-                    default:
-                        break;
-                }
-                mutexAccessHighPriority.release();
-            }
-            mutexSectionOccupied.release();
-
+        while (!checkIfAccessible(loco, priority)) {
 
             // Arrête la loco si elle est démarrée
             if (isStopped == false) {
@@ -107,6 +75,14 @@ public:
                 isStopped = true;
                 afficher_message(qPrintable(QString("The engine no. %1 stopped.").arg((loco.numero()))));
             }
+
+            // Incrémente le nombre de loco en attente pour la section partagé
+            mutexNbWaitingForSection.acquire();
+            nbWaitingForSection++;
+            mutexNbWaitingForSection.release();
+
+            // Attend qu'une loco sorte de la section partagée avant de revérifier l'accessibilité à la section
+            barrierSharedSection.acquire();
         }
 
         // Indique que la section est maintenant occupée
@@ -114,6 +90,7 @@ public:
         sectionOccupied = 1;
         mutexSectionOccupied.release();
 
+        // Supprime la loco courante de sa FIFO
         switch (priority) {
             case Priority::LowPriority:
                 accessLowPriority.pop();
@@ -146,19 +123,71 @@ public:
         sectionOccupied = 0;
         mutexSectionOccupied.release();
 
+        // Signale au loco en attente qu'une loco est sortie de la section
+        mutexNbWaitingForSection.acquire();
+        for (unsigned i = 0; i < nbWaitingForSection; i++) {
+            barrierSharedSection.release();
+        }
+        nbWaitingForSection = 0;
+        mutexNbWaitingForSection.release();
+
         afficher_message(qPrintable(QString("The engine no. %1 leaves the shared section.").arg(loco.numero())));
     }
 
 private:
     int                     sectionOccupied;
+    unsigned                nbWaitingForSection;
     std::queue<Locomotive*> accessLowPriority;
     std::queue<Locomotive*> accessHighPriority;
 
-    PcoSemaphore mutexSectionOccupied    = PcoSemaphore(1);
-    PcoSemaphore mutexAccessLowPriority  = PcoSemaphore(1);
-    PcoSemaphore mutexAccessHighPriority = PcoSemaphore(1);
-    PcoSemaphore mutexAcceptedLocomotive = PcoSemaphore(1);
-    PcoSemaphore mutexSharedSection      = PcoSemaphore(1);
+    PcoSemaphore mutexSectionOccupied     = PcoSemaphore(1);
+    PcoSemaphore mutexNbWaitingForSection = PcoSemaphore(1);
+    PcoSemaphore mutexAccessLowPriority   = PcoSemaphore(1);
+    PcoSemaphore mutexAccessHighPriority  = PcoSemaphore(1);
+    PcoSemaphore barrierSharedSection     = PcoSemaphore(0);
+
+    /**
+     * Vérifie si la locomotive donnée avec sa priorité peut accéder à la section partagée.
+     * @param loco Locomotive à vérifier.
+     * @param priority Priorité de la locomotive donnée.
+     * @return Vrai si la locomotive donnée peut accéder à la section partagée. Faux dans le cas contraire.
+     */
+    bool checkIfAccessible(Locomotive &loco, Priority priority) {
+        bool accessible = false;
+
+        // Vérifie si la section est occupée
+        mutexSectionOccupied.acquire();
+        if (sectionOccupied == 0) {
+
+            // Vérifie les FIFO d'accès selon la priorité de la loco courante
+            mutexAccessHighPriority.acquire();
+            switch (priority) {
+                case Priority::LowPriority:
+                    // Vérifie si la FIFO haute priorité est vide
+                    if (accessHighPriority.empty() == true) {
+                        // Vérifie si la tête de la FIFO basse priorité correspond à la loco courante
+                        mutexAccessLowPriority.acquire();
+                        if (accessLowPriority.front()->numero() == loco.numero()) {
+                            accessible = true;
+                        }
+                        mutexAccessLowPriority.release();
+                    }
+                    break;
+                case Priority::HighPriority:
+                    // Vérifie si la tête de la FIFO haute priorité correspond à la loco courante
+                    if (accessHighPriority.front()->numero() == loco.numero()) {
+                        accessible = true;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            mutexAccessHighPriority.release();
+        }
+        mutexSectionOccupied.release();
+
+        return accessible;
+    }
 };
 
 
