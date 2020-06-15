@@ -19,9 +19,12 @@ ComputationManager::ComputationManager(int maxQueueSize):
     requests((size_t) ComputationType::NB_TYPE),
     waitRequestType((size_t) ComputationType::NB_TYPE),
     waitQueuesFreeSpace((size_t) ComputationType::NB_TYPE),
-    idCnt(0)
+    idCnt(0),
+    nbComputerWaiting((size_t) ComputationType::NB_TYPE)
 {
-
+    for (size_t i = 0; i < (size_t) ComputationType::NB_TYPE; i++) {
+        nbComputerWaiting.at(i) = 0;
+    }
 }
 
 int ComputationManager::requestComputation(Computation c) {
@@ -66,28 +69,29 @@ void ComputationManager::abortComputation(int id) {
     // Verify if a result already exist.
     if (iterator->second != results.end()) {
         results.erase(iterator->second);
+    } else {
+        // If not,
+        // try to find the request using the given id.
+        // If the request is found, removes it
+        // from the requests deque and from the 'resultsIndex' map.
+        for (size_t i = 0; i < (size_t) ComputationType::NB_TYPE; i++) {
+            for (size_t j = 0; j < requests.at(i).size(); j++) {
+                if (requests.at(i).at(j).getId() == id) {
+                    requests.at(i).erase(requests.at(i).begin() + j);
+
+                    // Signal that a request was deleted.
+                    // There is now room for a new one.
+                    signal(waitQueuesFreeSpace.at(i));
+
+                    monitorOut();
+                    return;
+                }
+            }
+        }
     }
 
     // Remove the resultIndex in all cases.
     resultsIndex.erase(id);
-
-    // Try to find the request using the given id.
-    // If the request is found, removes it
-    // from the requests deque and from the 'resultsIndex' map.
-    for (size_t i = 0; i < (size_t) ComputationType::NB_TYPE; i++) {
-        for (size_t j = 0; j < requests.at(i).size(); j++) {
-            if (requests.at(i).at(j).getId() == id) {
-                requests.at(i).erase(requests.at(i).begin() + j);
-
-                // Signal that a request was deleted.
-                // There is now room for a new one.
-                signal(waitQueuesFreeSpace.at(i));
-
-                monitorOut();
-                return;
-            }
-        }
-    }
 
     monitorOut();
 }
@@ -127,7 +131,9 @@ Request ComputationManager::getWork(ComputationType computationType) {
 
         leaveMonitorIfStopped();
 
+        ++nbComputerWaiting.at((size_t) computationType);
         wait(waitRequestType.at((size_t) computationType));
+        --nbComputerWaiting.at((size_t) computationType);
 
         leaveMonitorIfStopped();
     }
@@ -181,7 +187,6 @@ void ComputationManager::provideResult(Result result) {
     signal(waitResult);
 
     monitorOut();
-
 }
 
 void ComputationManager::stop() {
@@ -189,7 +194,10 @@ void ComputationManager::stop() {
     stopped = true;
 
     for (size_t i = 0; i < (size_t) ComputationType::NB_TYPE; i++) {
-        signal(waitRequestType.at(i));
+        auto nbToSignal = nbComputerWaiting.at(i);
+        for (size_t j = 0; j < nbToSignal; j++) {
+            signal(waitRequestType.at(i));
+        }
         signal(waitQueuesFreeSpace.at(i));
     }
     signal(waitResult);

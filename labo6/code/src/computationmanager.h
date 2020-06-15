@@ -189,7 +189,7 @@ protected:
     // Ajoutez vos attributs et déclarations de méthodes ici
     // P.ex. variables conditions et structure de données pour le buffer
 
-    typedef size_t id;
+    typedef size_t                      id;
     typedef std::list<Result>::iterator listIndex;
 
     std::vector<std::deque<Request>> requests;
@@ -200,7 +200,8 @@ protected:
     std::vector<Condition>           waitQueuesFreeSpace;
     Condition                        waitResult;
 
-    size_t idCnt;
+    size_t                           idCnt;
+    std::vector<size_t>              nbComputerWaiting;
 
     // Queues
     const size_t MAX_TOLERATED_QUEUE_SIZE;
