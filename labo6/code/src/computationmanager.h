@@ -3,7 +3,7 @@
 //  / ___/ /__/ /_/ / / __// // / __// // / //
 // /_/   \___/\____/ /____/\___/____/\___/  //
 //                                          //
-// Auteurs : Prénom Nom, Prénom Nom
+// Auteurs : Arthur Bécaud, Bruno Egremy
 
 // La déclaration de la classe ComputationManager se trouve en bas du fichier,
 // ajoutez-y les attributs (et fonctions au besoin) pour votre implémentation.
